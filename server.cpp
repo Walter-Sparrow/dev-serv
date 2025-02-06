@@ -27,7 +27,7 @@ static void serve_file(int cfd, const char *base_dir, const char *path) {
   char file_path[PATH_MAX];
   snprintf(file_path, sizeof(file_path), "%s%s", base_dir, path);
 
-  FILE *fp = fopen(file_path, "r");
+  FILE *fp = fopen(file_path, "rb");
   if (!fp) {
     fprintf(stderr, "File not found: %s\n", file_path);
     CLOSE_CLIENT(cfd);
@@ -56,8 +56,8 @@ static void serve_file(int cfd, const char *base_dir, const char *path) {
 
   fread(file_buf, 1, file_size, fp);
   fclose(fp);
-  file_buf[file_size] = '\0';
 
+  size_t final_size = file_size;
   if (strcmp(content_type, "text/html") == 0) {
     char *head_tag = strstr(file_buf, "<head>");
     if (head_tag) {
@@ -67,10 +67,10 @@ static void serve_file(int cfd, const char *base_dir, const char *path) {
 
       memmove(insert_pos + script_len, insert_pos, tail_len + 1);
       memcpy(insert_pos, client_sse_script, script_len);
+      final_size = strlen(file_buf);
     }
   }
 
-  size_t final_size = strlen(file_buf);
   char response_header[1024];
   snprintf(response_header, sizeof(response_header),
            "HTTP/1.1 200 OK\r\n"

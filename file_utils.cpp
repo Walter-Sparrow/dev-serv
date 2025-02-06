@@ -7,9 +7,9 @@ int content_type_from_path(const char *path, char *content_type) {
     return -1;
   }
 
-  const char *exts[] = {".html", ".css", ".js"};
+  const char *exts[] = {".html", ".css", ".js", ".wasm"};
   const char *content_types[] = {"text/html", "text/css",
-                                 "application/javascript"};
+                                 "application/javascript", "application/wasm"};
 
   size_t count = sizeof(exts) / sizeof(exts[0]);
   for (size_t i = 0; i < count; i++) {
